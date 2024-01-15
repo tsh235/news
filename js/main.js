@@ -2,7 +2,8 @@ const API_KEY = '72716811ab374744ac630cbcfb3818e5';
 const choicesElem = document.querySelector('.js-choice');
 const formSearch = document.querySelector('.form-search');
 const title = document.querySelector('.title');
-const newsList = document.querySelector('.news-list');
+const topList = document.querySelector('.top-list');
+const latestList = document.querySelector('.latest-list');
 
 const declOfNum = (n, titles) => titles[n % 10 === 1 && n % 100 !== 11 ?
   0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2];
@@ -65,8 +66,9 @@ const getImage = url => new Promise((resolve) => {
   return image;
 });
 
-const renderCard = (data) => {
-  newsList.textContent = '';
+const renderCard = (data, selector) => {
+  // const newsList = document.querySelector(selector);
+  selector.textContent = '';
 
   data.forEach(async ({urlToImage, title, url, description, publishedAt, author}) => {
     const newsItem = document.createElement('li');
@@ -91,50 +93,59 @@ const renderCard = (data) => {
       </div>
     `);
     
-    newsList.append(newsItem);
+    selector.append(newsItem);
   });
 };
 
-const showError = (err) => {
+const showError = (err, selector) => {
+  // const newsList = document.querySelector(selector);
   console.warn(err);
-  newsList.textContent = '';
+  selector.textContent = '';
   title.textContent = 'Произошла ошибка, попробуйте позже';
 };
 
-const loadNews = async () => {
+const loadNews = async (count, selector) => {
+  // const newsList = document.querySelector(selector);
   title.textContent = `Новости на сегодня ${currentDate(new Date())}`;
-  newsList.innerHTML = `<li class="preload"></li>`;
+  selector.innerHTML = `<li class="preload"></li>`;
 
   const country = localStorage.getItem('country') || 'ru';
 
   select.setChoiceByValue(country);
 
-  const data = await getData(showError, `https://newsapi.org/v2/top-headlines?category=science&country=${country}&pageSize=16`);
-  renderCard(data.articles);
+  const data = await getData(showError, `https://newsapi.org/v2/top-headlines?category=science&country=${country}&pageSize=${count}`);
+  renderCard(data.articles, selector);
 };
 
-const loadSearch = async (value) => {
-  newsList.innerHTML = `<li class="preload"></li>`;
+const loadSearch = async (value, selector) => {
+  // const newsList = document.querySelector(selector);
+  selector.innerHTML = `<li class="preload"></li>`;
   const data = await getData(showError, `https://newsapi.org/v2/everything?q=${value}&pageSize=8`);
   const arrStr1 = ['найден', 'найдено', 'найдено'];
   const arrStr2 = ['новость', 'новости', 'новостей'];
   const count = data.articles.length;
 
-  title.textContent = `По вашему запросу "${value}" найдено ${declOfNum(count, arrStr1)} ${count} ${declOfNum(count, arrStr2)}`;
+  title.textContent = `По вашему запросу "${value}" ${declOfNum(count, arrStr1)} ${count} ${declOfNum(count, arrStr2)}`;
   select.setChoiceByValue('');
-  renderCard(data.articles);
+  renderCard(data.articles, topList);
 };
 
 choicesElem.addEventListener('change', (event) => {
   const value = event.detail.value;
   localStorage.setItem('country', value);
-  loadNews();
+  loadNews(12, topList);
 });
 
 formSearch.addEventListener('submit', (event) => {
   event.preventDefault();
-  loadSearch(formSearch.search.value);
+  
+  Promise.all([
+    loadSearch(formSearch.search.value, topList),
+    loadNews(4, latestList),
+  ]);
+
   formSearch.reset();
 });
 
-loadNews();
+loadNews(12, topList);
+loadNews(4, latestList);
