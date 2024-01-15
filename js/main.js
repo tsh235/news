@@ -134,6 +134,7 @@ choicesElem.addEventListener('change', (event) => {
   const value = event.detail.value;
   localStorage.setItem('country', value);
   loadNews(12, topList);
+  loadNews(4, latestList);
 });
 
 formSearch.addEventListener('submit', (event) => {
