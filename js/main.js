@@ -32,8 +32,7 @@ const getDateCorrectFormat = (isoDate) => {
   });
 
   return `
-    <span class="card__date">${fullDate}</span>
-    <span class="card__time">${fullTime}</span>
+    <span class="news-date">${fullDate}</span> ${fullTime}
   `;
 };  
 
