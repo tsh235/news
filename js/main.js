@@ -67,7 +67,6 @@ const getImage = url => new Promise((resolve) => {
 });
 
 const renderCard = (data, selector) => {
-  // const newsList = document.querySelector(selector);
   selector.textContent = '';
 
   data.forEach(async ({urlToImage, title, url, description, publishedAt, author}) => {
@@ -97,15 +96,15 @@ const renderCard = (data, selector) => {
   });
 };
 
-const showError = (err, selector) => {
-  // const newsList = document.querySelector(selector);
+const showError = (err) => {
   console.warn(err);
-  selector.textContent = '';
+  topList.textContent = '';
+  latestList.textContent = '';
+  title.style.color = '#ff0202';
   title.textContent = 'Произошла ошибка, попробуйте позже';
 };
 
 const loadNews = async (count, selector) => {
-  // const newsList = document.querySelector(selector);
   title.textContent = `Новости на сегодня ${currentDate(new Date())}`;
   selector.innerHTML = `<li class="preload"></li>`;
 
@@ -118,7 +117,6 @@ const loadNews = async (count, selector) => {
 };
 
 const loadSearch = async (value, selector) => {
-  // const newsList = document.querySelector(selector);
   selector.innerHTML = `<li class="preload"></li>`;
   const data = await getData(showError, `https://newsapi.org/v2/everything?q=${value}&pageSize=8`);
   const arrStr1 = ['найден', 'найдено', 'найдено'];
